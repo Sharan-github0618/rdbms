@@ -187,3 +187,67 @@ Copy code
 SELECT COUNT(DISTINCT iid) AS total_instructors
 FROM TEACHES
 WHERE year = '2019' AND sem = 'ODD';
+
+
+
+
+
+
+2>-----------------------------------------
+SELECT name
+FROM SUPPLIER
+WHERE supplier_id NOT IN (
+    SELECT CATALOG.supplier_id
+    FROM CATALOG
+    JOIN PART ON CATALOG.part_id = PART.part_id
+    WHERE color <> 'red'
+)
+AND supplier_id IN (
+    SELECT CATALOG.supplier_id
+    FROM CATALOG
+    JOIN PART ON CATALOG.part_id = PART.part_id
+    WHERE color = 'red'
+);
+✅ b) Supplier IDs who supply red and green parts
+sql
+Copy code
+SELECT DISTINCT supplier_id
+FROM CATALOG
+WHERE supplier_id IN (
+    SELECT supplier_id FROM CATALOG JOIN PART ON CATALOG.part_id = PART.part_id WHERE color = 'red'
+)
+AND supplier_id IN (
+    SELECT supplier_id FROM CATALOG JOIN PART ON CATALOG.part_id = PART.part_id WHERE color = 'green'
+);
+✅ c) Supplier IDs who supply red part OR whose address is 'Mysuru':
+sql
+Copy code
+SELECT DISTINCT supplier_id
+FROM SUPPLIER
+WHERE address = 'Mysuru'
+OR supplier_id IN (
+    SELECT supplier_id
+    FROM CATALOG
+    JOIN PART ON CATALOG.part_id = PART.part_id
+    WHERE color = 'red'
+);
+✅ d) Supplier IDs who supply some red and some green parts
+sql
+Copy code
+SELECT supplier_id
+FROM CATALOG
+JOIN PART ON CATALOG.part_id = PART.part_id
+WHERE color = 'red'
+AND supplier_id IN (
+    SELECT supplier_id
+    FROM CATALOG
+    JOIN PART ON CATALOG.part_id = PART.part_id
+    WHERE color = 'green'
+);
+✅ e) Supplier IDs who supply every part
+sql
+Copy code
+SELECT supplier_id
+FROM CATALOG
+GROUP BY supplier_id
+HAVING COUNT(DISTINCT part_id) = (SELECT COUNT(*) FROM PART);
